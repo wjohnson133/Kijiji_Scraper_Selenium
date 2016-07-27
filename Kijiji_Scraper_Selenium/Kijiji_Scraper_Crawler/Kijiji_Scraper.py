@@ -11,6 +11,9 @@ import lxml
 from scrapy.spiders import Spider
 from scrapy.selector import Selector
 from scrapy.item import Item, Field
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+from Kijiji_Scraper_Selenium import items
 
 driver = webdriver.Firefox()
 driver.get('http://www.kijiji.com')
@@ -37,10 +40,17 @@ list_links = driver.find_elements_by_css_selector("*[class^='title enable-search
 
 for i in list_links:
 
+#Open a new tab and open individual kijiji ad
+
         driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't')
         # element = i.get_attribute('href')
         driver.get(i.get_attribute('href'))
         driver.implicitly_wait(10)
+        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
+        driver.implicitly_wait(5)
+        print i.get_attribute('href')
+#Check if there is a phone number and click on the show phone number and print phone number
+
         if len(driver.find_elements_by_css_selector("*[class*='phoneShowNumberButton']")) > 0:
             linkElem =driver.find_element_by_css_selector("*[class*='phoneShowNumberButton']")
             type(linkElem)
@@ -48,28 +58,66 @@ for i in list_links:
             driver.implicitly_wait(5)
             print linkElem.text
 
-        def parse(self, response):
-            """
-            The lines below is a spider contract. For more info see:
-            http://doc.scrapy.org/en/latest/topics/contracts.html
-            @url http://www.dmoz.org/Computers/Programming/Languages/Python/Resources/
-            @scrapes name
-            """
-            sel = Selector(response)
-            sites = sel.xpath('//ul[@class="directory-url"]/li')
-            items = []
-            r = requests.get(driver.current_url)  # where url is the above url
-            bs = BeautifulSoup(r.text, 'lxml')
+#To find and extract other parts of kijiji house ad
+        class KijijiAptmntSpider(CrawlSpider):
+                name = "kijiji_aptmnt_spider"
+                allowed_domains = ["kijiji.ca"]
+                start_urls = ["http://www.kijiji.ca/b-apartments-condos/ottawa/c37l1700185"]
+                rules = [
+                    Rule(
+                        LinkExtractor(
+                            allow=["http://www.kijiji.ca/v-\d-bedroom-apartments-condos/ottawa/.+"]
+                        ),
+                        callback='parse_item'),
+                    Rule(
+                        LinkExtractor(
+                            allow=["http://www.kijiji.ca/b-apartments-condos/ottawa/.*?/page-[0-5]/.+"]
+                        )
+                    )
+                ]
 
-            for site in sites:
-                item = bs()
-                item['name'] = site.xpath('a/text()').extract()
-                item['url'] = site.xpath('a/@href').extract()
-                item['description'] = site.xpath('text()').re('-\s[^\n]*\\r')
-                items.append(item)
 
-                print items
-                return items
+                def parse_item(self, response):
+
+                    aptmnt = items.AptmntItem()
+
+                    aptmnt["url"] = response.url
+                    aptmnt["address"] = self._extract_field(response, "Address")
+                    aptmnt["price"] = self._extract_field(response, "Price")
+                    aptmnt["date_listed"] = self._extract_field(response, "Date Listed")
+                    aptmnt["num_bathrooms"] = self._extract_field(response, "Bathrooms (#)")
+                    aptmnt["num_bedrooms"] = self._extract_bedrooms(response)
+                    aptmnt["title"] = self._extract_title(response)
+                    aptmnt["description"] = self._extract_description(response)
+
+                    return aptmnt
+
+
+                def _clean_string(self, string):
+                    for i in [",", "\n", "\r", ";", "\\"]:
+                        string = string.replace(i, "")
+                    return string.strip()
+
+
+                def _extract_title(self, response):
+                    l = " ".join(response.xpath("//h1/text()").extract())
+                    return self._clean_string(l)
+
+
+                def _extract_description(self, response):
+                    l = " ".join(response.xpath("//span[@itemprop='description']/text()").extract())
+                    return self._clean_string(l)
+
+
+                def _extract_field(self, response, fieldname):
+                    l = response.xpath("//th[contains(text(), '{0}')]/following::td[1]//./text()".
+                                       format(fieldname)).extract()
+                    return l[0].strip() if l else None
+
+
+                def _extract_bedrooms(self, response):
+                    r = re.search(r'kijiji.ca\/v-(\d)-bedroom-apartments-condos', response.url)
+                    return r.group(1).strip() if r else None
 
             # info = bs.select('table.ad-attributes > tbody')
         # print bs
@@ -89,8 +137,6 @@ for i in list_links:
         # runtime = home.find('span','runtime').contents[0]
         # year = home.find('span','year_type').contents[0]
         # print phone_num, genres,runtime, rating, year
-        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
-        driver.implicitly_wait(5)
-        print i.get_attribute('href')
+
 
 driver.quit()
