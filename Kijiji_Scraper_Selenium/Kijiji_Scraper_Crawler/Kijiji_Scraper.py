@@ -63,15 +63,11 @@ for i in list_links:
             driver.implicitly_wait(5)
             print linkElem.text
 
-        
+        info = driver.find_element_by_css_selector("[class='ad-attributes']")
+        print info.get_attribute("textContent")
         html_string1 = requests.get(driver.current_url)
-        print html_string1.pag
-        sel = CSSSelector(html_string1.content)
         # parser = etree.XMLParser(ns_clean=True)
-        text1=sel.text
-        tree = lxml.html.document_fromstring(text1)
         # root = etree.fromstring(tree)
-        print lxml.html.tostring(tree)
 
         # print nmetree.tostring(tree.getroot())
         Selector(text=content).xpath('//tbody/text()').extract()
