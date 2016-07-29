@@ -62,20 +62,23 @@ for i in list_links:
             linkElem.click()
             driver.implicitly_wait(5)
             print linkElem.text
-            html_string1 = requests.get(driver.current_url)
-            sel = CSSSelector(html_string1.content)
-            # parser = etree.XMLParser(ns_clean=True)
-            text1=sel.text
-            tree = lxml.html.document_fromstring(text1)
-            # root = etree.fromstring(tree)
-            print lxml.html.tostring(tree)
 
-            # print nmetree.tostring(tree.getroot())
-            Selector(text=content).xpath('//tbody/text()').extract()
-            driver.implicitly_wait(10)
-            driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
-            driver.implicitly_wait(5)
-            print i.get_attribute('href')
+        
+        html_string1 = requests.get(driver.current_url)
+        print html_string1.pag
+        sel = CSSSelector(html_string1.content)
+        # parser = etree.XMLParser(ns_clean=True)
+        text1=sel.text
+        tree = lxml.html.document_fromstring(text1)
+        # root = etree.fromstring(tree)
+        print lxml.html.tostring(tree)
+
+        # print nmetree.tostring(tree.getroot())
+        Selector(text=content).xpath('//tbody/text()').extract()
+        driver.implicitly_wait(10)
+        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
+        driver.implicitly_wait(5)
+        print i.get_attribute('href')
     #Check if there is a phone number and click on the show phone number and print phone number
 
 
