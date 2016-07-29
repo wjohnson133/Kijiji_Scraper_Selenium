@@ -53,7 +53,7 @@ for i in list_links:
 
 #Open a new tab and open individual kijiji ad
 
-        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't')
+        driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
         # element = i.get_attribute('href')
         driver.get(i.get_attribute('href'))
         if len(driver.find_elements_by_css_selector("*[class*='phoneShowNumberButton']")) > 0:
@@ -63,16 +63,23 @@ for i in list_links:
             driver.implicitly_wait(5)
             print linkElem.text
 
+
+        texts = []
         info = driver.find_element_by_css_selector("[class='ad-attributes']")
-        print info.get_attribute("textContent")
+        description = driver.find_element_by_id("AdDescriptionTabs")
+        getinfo = info.find_elements_by_tag_name("td")
+        for a in getinfo:
+            texts.append(a.get_attribute('textContent'))
+        print texts
+        print description.get_attribute('textContent')
+        info1= info.get_attribute("textContent")
         html_string1 = requests.get(driver.current_url)
         # parser = etree.XMLParser(ns_clean=True)
         # root = etree.fromstring(tree)
 
         # print nmetree.tostring(tree.getroot())
-        Selector(text=content).xpath('//tbody/text()').extract()
         driver.implicitly_wait(10)
-        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
+        driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 'w')
         driver.implicitly_wait(5)
         print i.get_attribute('href')
     #Check if there is a phone number and click on the show phone number and print phone number
