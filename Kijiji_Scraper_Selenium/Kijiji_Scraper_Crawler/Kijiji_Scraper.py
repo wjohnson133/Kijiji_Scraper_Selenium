@@ -25,6 +25,7 @@ from xml.etree.cElementTree import tostring
 from cssselect import GenericTranslator
 from lxml.etree import XPath
 from lxml.cssselect import CSSSelector
+import os
 
 driver = webdriver.Firefox()
 driver.get('http://www.kijiji.com')
@@ -46,12 +47,22 @@ driver.implicitly_wait(3)
 linkElem =driver.find_element_by_partial_link_text("Propri")
 type(linkElem)
 linkElem.click()
-driver.get(driver.current_url)
-list_links = driver.find_elements_by_css_selector("*[class^='title enable-search-navigation-flag']")
 
-for i in list_links:
+linkcount_label = driver.find_element_by_class_name("titlecount")
+titlecount_text = linkcount_label.get_attribute('textContent')
+title_count = re.sub("[^0-9.]", "", titlecount_text)
+title_count= int(title_count)
+s=title_count/20
+helloFile = open('houses.txt', 'a')
 
-#Open a new tab and open individual kijiji ad
+for a in range(s):
+
+    driver.get(driver.current_url)
+    list_links = driver.find_elements_by_css_selector("*[class^='title enable-search-navigation-flag']")
+
+    for i in list_links:
+
+    #Open a new tab and open individual kijiji ad
 
         driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
         # element = i.get_attribute('href')
@@ -72,98 +83,24 @@ for i in list_links:
             texts.append(a.get_attribute('textContent'))
         print texts
         print description.get_attribute('textContent')
-        info1= info.get_attribute("textContent")
-        html_string1 = requests.get(driver.current_url)
-        # parser = etree.XMLParser(ns_clean=True)
-        # root = etree.fromstring(tree)
-
-        # print nmetree.tostring(tree.getroot())
+        phone_num = linkElem.text
+        home_desc = description.get_attribute('textContent')
+        texts.append(phone_num)
+        texts.append(home_desc)
+        helloFile.write(phone_num)
+        helloFile.write(',\n')
+        helloFile.write(texts)
+        helloFile.write(',\n')
+        helloFile.write(home_desc)
+        helloFile.write(',\n')
         driver.implicitly_wait(10)
         driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 'w')
         driver.implicitly_wait(5)
         print i.get_attribute('href')
-    #Check if there is a phone number and click on the show phone number and print phone number
 
+    linkElem=driver.find_element_by_link_text('Suivante')
+    type(linkElem)
+    linkElem.click()
 
-# #To find and extract other parts of kijiji house ad
-#         class KijijiAptmntSpider(CrawlSpider):
-#                 name = "kijiji_aptmnt_spider"
-#                 allowed_domains = ["kijiji.ca"]
-#                 start_urls = ["http://www.kijiji.ca/b-apartments-condos/ottawa/c37l1700185"]
-#                 rules = [
-#                     Rule(
-#                         LinkExtractor(
-#                             allow=["http://www.kijiji.ca/v-\d-bedroom-apartments-condos/ottawa/.+"]
-#                         ),
-#                         callback='parse_item'),
-#                     Rule(
-#                         LinkExtractor(
-#                             allow=["http://www.kijiji.ca/b-apartments-condos/ottawa/.*?/page-[0-5]/.+"]
-#                         )
-#                     )
-#                 ]
-#
-#
-# def parse_item(self, response):
-#
-#     aptmnt = items.AptmntItem()
-#
-#     aptmnt["url"] = response.url
-#     aptmnt["address"] = self._extract_field(response, "Address")
-#     aptmnt["price"] = self._extract_field(response, "Price")
-#     aptmnt["date_listed"] = self._extract_field(response, "Date Listed")
-#     aptmnt["num_bathrooms"] = self._extract_field(response, "Bathrooms (#)")
-#     aptmnt["num_bedrooms"] = self._extract_bedrooms(response)
-#     aptmnt["title"] = self._extract_title(response)
-#     aptmnt["description"] = self._extract_description(response)
-#
-#     return aptmnt
-#
-#
-#                 def _clean_string(self, string):
-#                     for i in [",", "\n", "\r", ";", "\\"]:
-#                         string = string.replace(i, "")
-#                     return string.strip()
-#
-#
-#                 def _extract_title(self, response):
-#                     l = " ".join(response.xpath("//h1/text()").extract())
-#                     return self._clean_string(l)
-#
-#
-#                 def _extract_description(self, response):
-#                     l = " ".join(response.xpath("//span[@itemprop='description']/text()").extract())
-#                     return self._clean_string(l)
-#
-#
-#                 def _extract_field(self, response, fieldname):
-#                     l = response.xpath("//th[contains(text(), '{0}')]/following::td[1]//./text()".
-#                                        format(fieldname)).extract()
-#                     return l[0].strip() if l else None
-#
-#
-#                 def _extract_bedrooms(self, response):
-#                     r = re.search(r'kijiji.ca\/v-(\d)-bedroom-apartments-condos', response.url)
-#                     return r.group(1).strip() if r else None
-
-            # info = bs.select('table.ad-attributes > tbody')
-        # print bs
-        # for home in bs.findAll('div','layout-2 under-960-width-col-2-above clearfix allow-overflow', "html.parser"):
-        #     html_string = requests.get(driver.current_url)
-        #     soup = BeautifulSoup(html_string, "html.parser")
-        # phone_num = re.search('AdIdZ(\d+)',bs)
-        # phone_num = bs.find(text=re.compile('a.profileLink__legacy--jss(.*)'))
-        # phone_num = bs.find('a', attrs={"class": re.compile(r"a.profileLink__legacy--jss" )})
-        # phone_num = list_links = driver.find_element_by_css_selector("*[class^='profileLink__legacy--jss']")
-
-        # phone_num = re.findall(r'^(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?$')
-        # phone_num = bs.find('a', text = re.compile('a.profileLink__legacy--jss(.*)'), attrs = {'class' : 'pos'})
-
-        # genres = home.find('span','genre').findAll('a')
-        # genres = [g.contents[0] for g in genres]
-        # runtime = home.find('span','runtime').contents[0]
-        # year = home.find('span','year_type').contents[0]
-        # print phone_num, genres,runtime, rating, year
-
-
+helloFile.close()
 driver.quit()
