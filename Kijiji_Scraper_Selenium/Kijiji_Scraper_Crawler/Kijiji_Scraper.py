@@ -26,6 +26,10 @@ from cssselect import GenericTranslator
 from lxml.etree import XPath
 from lxml.cssselect import CSSSelector
 import os
+import lxml.html as html # pip install 'lxml>=2.3.1'
+from lxml.html.clean        import Cleaner
+from selenium.webdriver     import Firefox         # pip install selenium
+from werkzeug.contrib.cache import FileSystemCache # pip install werkzeug
 
 driver = webdriver.Firefox()
 driver.get('http://www.kijiji.com')
@@ -85,11 +89,13 @@ for a in range(s):
         print description.get_attribute('textContent')
         phone_num = linkElem.text
         home_desc = description.get_attribute('textContent')
-        texts.append(phone_num)
-        texts.append(home_desc)
-        helloFile.write(phone_num)
+        # texts.append(phone_num)
+        # texts.append(home_desc)
+        helloFile.write(phone_num) f
         helloFile.write(',\n')
-        helloFile.write(texts)
+        str1=','.join(texts)
+        str1 = str1.encode('utf-8')
+        helloFile.write(str1, encoding='utf-8', xml_declaration=True)
         helloFile.write(',\n')
         helloFile.write(home_desc)
         helloFile.write(',\n')
