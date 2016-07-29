@@ -4,6 +4,7 @@ from selenium.webdriver.common.keys import Keys
 import webbrowser
 # import openpyxl
 import requests
+from io import StringIO, BytesIO
 import bs4
 from bs4 import BeautifulSoup
 import re
@@ -15,6 +16,7 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from Kijiji_Scraper_Selenium import items
 from scrapy.selector import Selector
+from lxml.html import HTMLParser
 from scrapy.http import HtmlResponse
 from lxml.html.soupparser import fromstring
 from lxml import etree
@@ -56,9 +58,11 @@ for i in list_links:
             linkElem.click()
             driver.implicitly_wait(5)
             print linkElem.text
-            html_string = requests.get(driver.current_url)
-            body = fromstring(html_string)
-            Selector(text=body).xpath('//tbody/text()').extract()
+            html_string1 = requests.get(driver.current_url)
+            parser = etree.XMLParser(ns_clean=True)
+            tree   = etree.parse(StringIO(html_string1), parser)
+            print etree.tostring(tree.getroot())
+            Selector(text=content).xpath('//tbody/text()').extract()
             driver.implicitly_wait(10)
             driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
             driver.implicitly_wait(5)
