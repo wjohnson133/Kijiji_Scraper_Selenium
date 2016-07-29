@@ -9,6 +9,7 @@ import bs4
 from bs4 import BeautifulSoup
 import re
 import lxml
+import lxml.html
 from scrapy.spiders import Spider
 from scrapy.selector import Selector
 from scrapy.item import Item, Field
@@ -16,11 +17,14 @@ from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
 from Kijiji_Scraper_Selenium import items
 from scrapy.selector import Selector
-from lxml.html import HTMLParser
+from lxml.html import fromstring
 from scrapy.http import HtmlResponse
 from lxml.html.soupparser import fromstring
 from lxml import etree
 from xml.etree.cElementTree import tostring
+from cssselect import GenericTranslator
+from lxml.etree import XPath
+from lxml.cssselect import CSSSelector
 
 driver = webdriver.Firefox()
 driver.get('http://www.kijiji.com')
@@ -59,9 +63,14 @@ for i in list_links:
             driver.implicitly_wait(5)
             print linkElem.text
             html_string1 = requests.get(driver.current_url)
-            parser = etree.XMLParser(ns_clean=True)
-            tree   = etree.parse(StringIO(html_string1), parser)
-            print etree.tostring(tree.getroot())
+            sel = CSSSelector(html_string1.content)
+            # parser = etree.XMLParser(ns_clean=True)
+            text1=sel.text
+            tree = lxml.html.document_fromstring(text1)
+            # root = etree.fromstring(tree)
+            print lxml.html.tostring(tree)
+
+            # print nmetree.tostring(tree.getroot())
             Selector(text=content).xpath('//tbody/text()').extract()
             driver.implicitly_wait(10)
             driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
