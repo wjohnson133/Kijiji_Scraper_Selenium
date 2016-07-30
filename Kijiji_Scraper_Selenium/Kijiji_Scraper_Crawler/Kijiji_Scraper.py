@@ -8,6 +8,7 @@ from io import StringIO, BytesIO
 import bs4
 from bs4 import BeautifulSoup
 import re
+import codecs
 import lxml
 import lxml.html
 from scrapy.spiders import Spider
@@ -30,6 +31,10 @@ import lxml.html as html # pip install 'lxml>=2.3.1'
 from lxml.html.clean        import Cleaner
 from selenium.webdriver     import Firefox         # pip install selenium
 from werkzeug.contrib.cache import FileSystemCache # pip install werkzeug
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 driver = webdriver.Firefox()
 driver.get('http://www.kijiji.com')
@@ -57,7 +62,8 @@ titlecount_text = linkcount_label.get_attribute('textContent')
 title_count = re.sub("[^0-9.]", "", titlecount_text)
 title_count= int(title_count)
 s=title_count/20
-helloFile = open('houses.txt', 'a')
+# helloFile = open('houses.txt', 'a')
+
 
 for a in range(s):
 
@@ -76,6 +82,7 @@ for a in range(s):
             type(linkElem)
             linkElem.click()
             driver.implicitly_wait(5)
+            phone_num=linkElem.text
             print linkElem.text
 
 
@@ -87,24 +94,26 @@ for a in range(s):
             texts.append(a.get_attribute('textContent'))
         print texts
         print description.get_attribute('textContent')
-        phone_num = linkElem.text
         home_desc = description.get_attribute('textContent')
         # texts.append(phone_num)
         # texts.append(home_desc)
-        helloFile.write(phone_num) f
-        helloFile.write(',\n')
-        str1=','.join(texts)
-        str1 = str1.encode('utf-8')
-        helloFile.write(str1, encoding='utf-8', xml_declaration=True)
-        helloFile.write(',\n')
-        helloFile.write(home_desc)
-        helloFile.write(',\n')
+        with codecs.open('houses.txt', "a", 'utf-8') as text_file:
+            if 'phone_num' in locals():
+                text_file.write(phone_num.encode("utf-8"))
+            text_file.write(',\n')
+            str1=','.join(texts)
+            text_file.write(str1.encode("utf-8"))
+            text_file.write(',\n')
+            text_file.write(home_desc)
+            text_file.write(',\n')
         driver.implicitly_wait(10)
         driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 'w')
         driver.implicitly_wait(5)
         print i.get_attribute('href')
+        if 'phone_num' in locals():
+            del phone_num
 
-    linkElem=driver.find_element_by_link_text('Suivante')
+    linkElem=driver.find_element_by_partial_link_text("Suivante")
     type(linkElem)
     linkElem.click()
 
