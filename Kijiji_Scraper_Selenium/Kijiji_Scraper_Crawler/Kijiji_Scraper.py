@@ -100,6 +100,7 @@ finally:
 
 linkcount_label = driver.find_element_by_class_name("titlecount")
 titlecount_text = linkcount_label.get_attribute('textContent')
+adnumber = 0
 title_count = re.sub("[^0-9.]", "", titlecount_text)
 title_count= int(title_count)
 s=title_count/20
@@ -114,15 +115,28 @@ for a in range(s):
 
     driver.get(driver.current_url)
     list_links = driver.find_elements_by_css_selector("*[class^='title enable-search-navigation-flag']")
+    list_links1 = []
+    for i1 in list_links:
+        list_links1.append(i1.get_attribute('href'))
+
+    b = 0
 
     for i in list_links:
 
         #Open a new tab and open individual kijiji ad
 
-        print i.get_attribute('href')
-        driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
+        print list_links1[b]
+        b = +1
+
+        try:
+            element = WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.TAG_NAME, "body"))
+            )
+        finally:
+            driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
+
         # element = i.get_attribute('href')
-        driver.get(i.get_attribute('href'))
+        driver.get(list_links1[b])
 
         texts = []
 
@@ -159,7 +173,11 @@ for a in range(s):
         texts = str1.split('|')
 
         outputWriter.writerow([str1])
-        xsheet.write_row(0, 0, texts)
+
+        if adnumber <= title_count:
+            xsheet.write_row(adnumber, 0, texts)
+            adnumber += 1
+
 
         # texts.append(phone_num)
         # texts.append(home_desc)
@@ -173,8 +191,13 @@ for a in range(s):
         #     text_file.write(home_desc)
         #     text_file.write(',\n')
 
-        driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 'w')
-        driver.implicitly_wait(5)
+        try:
+            element = WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.TAG_NAME, "body")
+            ))
+        finally:
+            driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 'w')
+
 
         if 'phone_num' in locals():
             del phone_num
