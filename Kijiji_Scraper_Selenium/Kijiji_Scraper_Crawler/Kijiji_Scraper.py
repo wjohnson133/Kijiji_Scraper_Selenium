@@ -213,9 +213,14 @@ for a in range(s):
     finally:
         driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
 
-linkElem=driver.find_element_by_partial_link_text("Suivante")
-type(linkElem)
-linkElem.click()
+    try:
+        element = WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Suivante")
+                                           ))
+    finally:
+        linkElem=driver.find_element_by_partial_link_text("Suivante")
+        type(linkElem)
+        linkElem.click()
 
 xbook.close()
 driver.quit()
