@@ -98,8 +98,13 @@ finally:
 # type(linkElem)
 # linkElem.click()
 
-linkcount_label = driver.find_element_by_class_name("titlecount")
-titlecount_text = linkcount_label.get_attribute('textContent')
+try:
+    element = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "titlecount")))
+finally:
+    linkcount_label = driver.find_element_by_class_name("titlecount")
+    titlecount_text = linkcount_label.get_attribute('textContent')
+
 adnumber = 0
 title_count = re.sub("[^0-9.]", "", titlecount_text)
 title_count= int(title_count)
@@ -132,7 +137,7 @@ for a in range(s):
                 element = WebDriverWait(driver, 30).until(
                     EC.presence_of_element_located((By.TAG_NAME, "body")))
             finally:
-                driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 't')
+                driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't')
 
         # element = i.get_attribute('href')
         driver.get(list_links1[b])
@@ -153,7 +158,13 @@ for a in range(s):
         else:
             texts.append(',')
 
-        info = driver.find_element_by_css_selector("[class='ad-attributes']")
+        try:
+            element = WebDriverWait(driver, 30).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "[class='ad-attributes']")))
+        finally:
+            info = driver.find_element_by_css_selector("[class='ad-attributes']")
+
+        # info = driver.find_element_by_css_selector("[class='ad-attributes']") was replaced by 161 to 165
         description = driver.find_element_by_id("AdDescriptionTabs")
         getinfo = info.find_elements_by_tag_name("td")
         for a in getinfo:
@@ -200,11 +211,11 @@ for a in range(s):
             EC.presence_of_element_located((By.TAG_NAME, "body")
                                            ))
     finally:
-        driver.find_element_by_tag_name('body').send_keys(Keys.COMMAND + 'w')
+        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
 
-    linkElem=driver.find_element_by_partial_link_text("Suivante")
-    type(linkElem)
-    linkElem.click()
+linkElem=driver.find_element_by_partial_link_text("Suivante")
+type(linkElem)
+linkElem.click()
 
 xbook.close()
 driver.quit()
