@@ -33,6 +33,7 @@ from selenium.webdriver     import Firefox         # pip install selenium
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import csv
 import xlsxwriter
 import sys
@@ -41,22 +42,19 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-driver = webdriver.Firefox()
+driver = webdriver.PhantomJS()
+driver.maximize_window()
 driver.get('http://www.kijiji.com')
 # driver.implicitly_wait(10)
 try:
-    element = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.ID, "SignInLink"))
-    )
+    element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "SignInLink"))    )
 finally:
     linkElem = driver.find_element_by_id('SignInLink')
     type(linkElem)
     linkElem.click() # follows the "Read It Online" link
 
 try:
-    element = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.ID, "LoginEmailOrNickname"))
-    )
+    element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "LoginEmailOrNickname")))
 finally:
     emailElem = driver.find_element_by_id('LoginEmailOrNickname')
     emailElem.send_keys('williamleonardjohnson@gmail.com')
@@ -72,8 +70,7 @@ finally:
 # driver.implicitly_wait(10)
 
 try:
-    element = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "houses for sale"))
+    element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "houses for sale"))
     )
 finally:
     linkElem = driver.find_element_by_partial_link_text("houses for sale")
@@ -86,9 +83,7 @@ finally:
 # driver.implicitly_wait(3)
 
 try:
-    element = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Propri"))
-    )
+    element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Propri")))
 finally:
     linkElem = driver.find_element_by_partial_link_text("Propri")
     type(linkElem)
@@ -99,8 +94,7 @@ finally:
 # linkElem.click()
 
 try:
-    element = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "titlecount")))
+    element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME, "titlecount")))
 finally:
     linkcount_label = driver.find_element_by_class_name("titlecount")
     titlecount_text = linkcount_label.get_attribute('textContent')
@@ -134,11 +128,9 @@ for a in range(s):
 
         if b == 0:
             try:
-                element = WebDriverWait(driver, 30).until(
-                    EC.presence_of_element_located((By.TAG_NAME, "body")))
+                element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
             finally:
                 driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't')
-
         # element = i.get_attribute('href')
         driver.get(list_links1[b])
 
@@ -159,9 +151,10 @@ for a in range(s):
             texts.append(',')
 
         try:
-            element = WebDriverWait(driver, 30).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "[class='ad-attributes']")))
-        finally:
+            element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[class='ad-attributes']")))
+        except NoSuchElementException, TimeoutException:
+            continue
+        else:
             info = driver.find_element_by_css_selector("[class='ad-attributes']")
 
         # info = driver.find_element_by_css_selector("[class='ad-attributes']") was replaced by 161 to 165
@@ -207,16 +200,12 @@ for a in range(s):
         b += 1
 
     try:
-        element = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.TAG_NAME, "body")
-                                           ))
+        element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
     finally:
-        driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 'w')
-
+        driver.find_element_by_tag_name("body").send_keys(Keys.CONTROL + 'w')
+        driver.save_screenshot('out1.png')
     try:
-        element = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Suivante")
-                                           ))
+        element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Suivante")))
     finally:
         linkElem=driver.find_element_by_partial_link_text("Suivante")
         type(linkElem)
