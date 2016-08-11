@@ -42,8 +42,12 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+new_driver = webdriver.PhantomJS()
+new_driver.maximize_window()
+new_driver_handle = new_driver.current_window_handle
 driver = webdriver.PhantomJS()
 driver.maximize_window()
+driver_handle = driver.current_window_handle
 driver.get('http://www.kijiji.com')
 # driver.implicitly_wait(10)
 try:
@@ -112,6 +116,7 @@ outputWriter.writerow(['label1', 'label2', 'label3', 'label4', 'label5', 'label6
 
 for a in range(s):
 
+
     driver.get(driver.current_url)
     list_links = driver.find_elements_by_css_selector("*[class^='title enable-search-navigation-flag']")
     list_links1 = []
@@ -126,22 +131,44 @@ for a in range(s):
 
         print list_links1[b]
 
-        if b == 0:
+        if b > 0:
+            new_driver.get(list_links1[b])
+
+        if adnumber == 0:
+            new_driver.switch_to.window(new_driver_handle)
+            new_driver.get(list_links1[b])
             try:
-                element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+                element = WebDriverWait(new_driver, 30).until(
+                    EC.presence_of_element_located((By.ID, "SignInLink")))
             finally:
-                driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't')
+                linkElem = new_driver.find_element_by_id('SignInLink')
+                type(linkElem)
+                linkElem.click()  # follows the "Read It Online" link
+
+            try:
+                element = WebDriverWait(new_driver, 30).until(
+                    EC.presence_of_element_located((By.ID, "LoginEmailOrNickname")))
+            finally:
+                emailElem = new_driver.find_element_by_id('LoginEmailOrNickname')
+                emailElem.send_keys('williamleonardjohnson@gmail.com')
+                passwordElem = new_driver.find_element_by_id('login-password')
+                passwordElem.send_keys('WJ1029vc1')
+                passwordElem.submit()
+
+                # try:
+            #     element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            # finally:
+            #     driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't')
         # element = i.get_attribute('href')
-        driver.get(list_links1[b])
+        new_driver.save_screenshot('out1.png')
 
         texts = []
 
-
-        if len(driver.find_elements_by_css_selector("*[class*='phoneShowNumberButton']")) > 0:
-            linkElem = driver.find_element_by_css_selector("*[class*='phoneShowNumberButton']")
+        if len(new_driver.find_elements_by_css_selector("*[class*='phoneShowNumberButton']")) > 0:
+            linkElem = new_driver.find_element_by_css_selector("*[class*='phoneShowNumberButton']")
             type(linkElem)
             linkElem.click()
-            driver.implicitly_wait(5)
+            new_driver.implicitly_wait(5)
             phone_num=linkElem.text
             print linkElem.text
 
@@ -151,14 +178,16 @@ for a in range(s):
             texts.append(',')
 
         try:
-            element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, "[class='ad-attributes']")))
+            element = WebDriverWait(new_driver, 30).until(EC.presence_of_element_located(
+                (By.CSS_SELECTOR, "[class='ad-attributes']"))
+                                                      )
         except NoSuchElementException, TimeoutException:
             continue
         else:
-            info = driver.find_element_by_css_selector("[class='ad-attributes']")
+            info = new_driver.find_element_by_css_selector("[class='ad-attributes']")
 
         # info = driver.find_element_by_css_selector("[class='ad-attributes']") was replaced by 161 to 165
-        description = driver.find_element_by_id("AdDescriptionTabs")
+        description = new_driver.find_element_by_id("AdDescriptionTabs")
         getinfo = info.find_elements_by_tag_name("td")
         for a in getinfo:
             texts.append(a.get_attribute('textContent'))
@@ -199,13 +228,18 @@ for a in range(s):
 
         b += 1
 
+    # try:
+    #     element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+    # finally:
+    #     driver.find_element_by_tag_name("body").send_keys(Keys.CONTROL + 'w')
+    #     driver.save_screenshot('out1.png')
+
+    driver.switch_to.window(driver_handle)
+
     try:
-        element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-    finally:
-        driver.find_element_by_tag_name("body").send_keys(Keys.CONTROL + 'w')
-        driver.save_screenshot('out1.png')
-    try:
-        element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Suivante")))
+        element = WebDriverWait(driver, 60).until(
+            EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Suivante"))
+            )
     finally:
         linkElem=driver.find_element_by_partial_link_text("Suivante")
         type(linkElem)
