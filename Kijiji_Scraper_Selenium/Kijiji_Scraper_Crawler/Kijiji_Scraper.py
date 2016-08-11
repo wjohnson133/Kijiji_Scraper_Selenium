@@ -27,9 +27,9 @@ from cssselect import GenericTranslator
 from lxml.etree import XPath
 from lxml.cssselect import CSSSelector
 import os
-import lxml.html as html # pip install 'lxml>=2.3.1'
-from lxml.html.clean        import Cleaner
-from selenium.webdriver     import Firefox         # pip install selenium
+import lxml.html as html  # pip install 'lxml>=2.3.1'
+from lxml.html.clean import Cleaner
+from selenium.webdriver import Firefox  # pip install selenium
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -37,7 +37,6 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 import csv
 import xlsxwriter
 import sys
-
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -51,18 +50,18 @@ driver_handle = driver.current_window_handle
 driver.get('http://www.kijiji.com')
 # driver.implicitly_wait(10)
 try:
-    element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "SignInLink"))    )
+    element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "SignInLink")))
 finally:
     linkElem = driver.find_element_by_id('SignInLink')
     type(linkElem)
-    linkElem.click() # follows the "Read It Online" link
+    linkElem.click()  # follows the "Read It Online" link
 
 try:
     element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "LoginEmailOrNickname")))
 finally:
     emailElem = driver.find_element_by_id('LoginEmailOrNickname')
     emailElem.send_keys('williamleonardjohnson@gmail.com')
-    passwordElem =driver.find_element_by_id('login-password')
+    passwordElem = driver.find_element_by_id('login-password')
     passwordElem.send_keys('WJ1029vc1')
     passwordElem.submit()
 
@@ -75,7 +74,7 @@ finally:
 
 try:
     element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "houses for sale"))
-    )
+                                              )
 finally:
     linkElem = driver.find_element_by_partial_link_text("houses for sale")
     type(linkElem)
@@ -105,17 +104,17 @@ finally:
 
 adnumber = 0
 title_count = re.sub("[^0-9.]", "", titlecount_text)
-title_count= int(title_count)
-s=title_count/20
+title_count = int(title_count)
+s = title_count / 20
 # helloFile = open('houses.txt', 'a')
 xbook = xlsxwriter.Workbook('Test.xlsx')
 xsheet = xbook.add_worksheet('Test')
 outputFile = open('output.csv', 'a')
 outputWriter = csv.writer(outputFile)
-outputWriter.writerow(['label1', 'label2', 'label3', 'label4', 'label5', 'label6', 'label7', 'label8', 'label9', 'label10'])
+outputWriter.writerow(
+    ['label1', 'label2', 'label3', 'label4', 'label5', 'label6', 'label7', 'label8', 'label9', 'label10'])
 
 for a in range(s):
-
 
     driver.get(driver.current_url)
     list_links = driver.find_elements_by_css_selector("*[class^='title enable-search-navigation-flag']")
@@ -127,7 +126,7 @@ for a in range(s):
 
     for i in list_links:
 
-        #Open a new tab and open individual kijiji ad
+        # Open a new tab and open individual kijiji ad
 
         print list_links1[b]
 
@@ -155,22 +154,31 @@ for a in range(s):
                 passwordElem.send_keys('WJ1029vc1')
                 passwordElem.submit()
 
-                # try:
-            #     element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-            # finally:
-            #     driver.find_element_by_tag_name('body').send_keys(Keys.CONTROL + 't')
-        # element = i.get_attribute('href')
         new_driver.save_screenshot('out1.png')
 
         texts = []
 
-        if len(new_driver.find_elements_by_css_selector("*[class*='phoneShowNumberButton']")) > 0:
+        try:
+            element = WebDriverWait(new_driver, 30).until(EC.visibility_of_element_located((
+                By.CSS_SELECTOR, "*[class*='phoneShowNumberButton']"))
+            )
+        except (NoSuchElementException, TimeoutException):
+            pass
+        else:
             linkElem = new_driver.find_element_by_css_selector("*[class*='phoneShowNumberButton']")
             type(linkElem)
             linkElem.click()
             new_driver.implicitly_wait(5)
-            phone_num=linkElem.text
+            phone_num = linkElem.text
             print linkElem.text
+
+        # if len(new_driver.find_elements_by_css_selector("*[class*='phoneShowNumberButton']")) > 0:
+        #     linkElem = new_driver.find_element_by_css_selector("*[class*='phoneShowNumberButton']")
+        #     type(linkElem)
+        #     linkElem.click()
+        #     new_driver.implicitly_wait(5)
+        #     phone_num=linkElem.text
+        #     print linkElem.text
 
         if 'phone_num' in locals():
             texts.append(phone_num)
@@ -180,7 +188,7 @@ for a in range(s):
         try:
             element = WebDriverWait(new_driver, 30).until(EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "[class='ad-attributes']"))
-                                                      )
+            )
         except NoSuchElementException, TimeoutException:
             continue
         else:
@@ -198,7 +206,7 @@ for a in range(s):
         texts.append(home_desc)
         texts1 = texts
 
-        str1='|'.join(texts)
+        str1 = '|'.join(texts)
 
         str1 = re.sub(r'\s+', ' ', str1.replace(' |', ' |'))
         # str1 = str1.strip('\n')
@@ -210,29 +218,10 @@ for a in range(s):
             xsheet.write_row(adnumber, 0, texts)
             adnumber += 1
 
-
-        # texts.append(phone_num)
-        # texts.append(home_desc)
-        # with codecs.open('houses.txt', "a", 'utf-8') as text_file:
-        #     if 'phone_num' in locals():
-        #         text_file.write(phone_num.encode("utf-8"))
-        #     text_file.write(',\n')
-        #     str1=','.join(texts)
-        #     text_file.write(str1.encode("utf-8"))
-        #     text_file.write(',\n')
-        #     text_file.write(home_desc)
-        #     text_file.write(',\n')
-
         if 'phone_num' in locals():
             del phone_num
 
         b += 1
-
-    # try:
-    #     element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-    # finally:
-    #     driver.find_element_by_tag_name("body").send_keys(Keys.CONTROL + 'w')
-    #     driver.save_screenshot('out1.png')
 
     driver.switch_to.window(driver_handle)
 
@@ -241,7 +230,7 @@ for a in range(s):
             EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Suivante"))
             )
     finally:
-        linkElem=driver.find_element_by_partial_link_text("Suivante")
+        linkElem = driver.find_element_by_partial_link_text("Suivante")
         type(linkElem)
         linkElem.click()
 
