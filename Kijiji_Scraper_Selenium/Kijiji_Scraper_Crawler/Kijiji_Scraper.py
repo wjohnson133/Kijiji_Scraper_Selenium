@@ -41,11 +41,16 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-new_driver = webdriver.PhantomJS()
-new_driver.maximize_window()
+new_driver = webdriver.Firefox()
+driver = webdriver.Firefox()
+# new_driver = webdriver.PhantomJS(
+#     executable_path='/Users/williamjohnson/PycharmProjects/Kijiji_Scraper_Selenium/Kijiji_Scraper_Selenium/Kijiji_Scraper_Crawler/phantomjs')
+# new_driver.set_window_size(1920, 1080)
+# new_driver.maximize_window()
 new_driver_handle = new_driver.current_window_handle
-driver = webdriver.PhantomJS()
-driver.maximize_window()
+# driver = webdriver.PhantomJS(
+#     executable_path='/Users/williamjohnson/PycharmProjects/Kijiji_Scraper_Selenium/Kijiji_Scraper_Selenium/Kijiji_Scraper_Crawler/phantomjs')
+# driver.set_window_size(1920, 1080)
 driver_handle = driver.current_window_handle
 driver.get('http://www.kijiji.com')
 # driver.implicitly_wait(10)
@@ -138,7 +143,8 @@ for a in range(s):
             new_driver.get(list_links1[b])
             try:
                 element = WebDriverWait(new_driver, 30).until(
-                    EC.presence_of_element_located((By.ID, "SignInLink")))
+                    EC.presence_of_element_located((By.ID, "SignInLink"))
+                )
             finally:
                 linkElem = new_driver.find_element_by_id('SignInLink')
                 type(linkElem)
@@ -159,16 +165,16 @@ for a in range(s):
         texts = []
 
         try:
-            element = WebDriverWait(new_driver, 30).until(EC.visibility_of_element_located((
-                By.CSS_SELECTOR, "*[class*='phoneShowNumberButton']"))
+            element = WebDriverWait(new_driver, 30).until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "*[class*='phoneShowNumberButton']"))
             )
         except (NoSuchElementException, TimeoutException):
             pass
         else:
             linkElem = new_driver.find_element_by_css_selector("*[class*='phoneShowNumberButton']")
             type(linkElem)
+            new_driver.implicitly_wait(10)
             linkElem.click()
-            new_driver.implicitly_wait(5)
             phone_num = linkElem.text
             print linkElem.text
 
@@ -177,7 +183,7 @@ for a in range(s):
         #     type(linkElem)
         #     linkElem.click()
         #     new_driver.implicitly_wait(5)
-        #     phone_num=linkElem.text
+        #     phone_num = linkElem.text
         #     print linkElem.text
 
         if 'phone_num' in locals():
@@ -189,7 +195,7 @@ for a in range(s):
             element = WebDriverWait(new_driver, 30).until(EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "[class='ad-attributes']"))
             )
-        except NoSuchElementException, TimeoutException:
+        except (NoSuchElementException, TimeoutException):
             continue
         else:
             info = new_driver.find_element_by_css_selector("[class='ad-attributes']")
@@ -228,7 +234,7 @@ for a in range(s):
     try:
         element = WebDriverWait(driver, 60).until(
             EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Suivante"))
-            )
+        )
     finally:
         linkElem = driver.find_element_by_partial_link_text("Suivante")
         type(linkElem)
