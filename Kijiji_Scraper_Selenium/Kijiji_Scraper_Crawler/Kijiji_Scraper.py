@@ -33,7 +33,7 @@ from selenium.webdriver import Firefox  # pip install selenium
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 import csv
 import xlsxwriter
 import sys
@@ -41,8 +41,8 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-new_driver = webdriver.Firefox()
-driver = webdriver.Firefox()
+new_driver = webdriver.PhantomJS()
+driver = webdriver.PhantomJS()
 # new_driver = webdriver.PhantomJS(
 #     executable_path='/Users/williamjohnson/PycharmProjects/Kijiji_Scraper_Selenium/Kijiji_Scraper_Selenium/Kijiji_Scraper_Crawler/phantomjs')
 # new_driver.set_window_size(1920, 1080)
@@ -173,10 +173,22 @@ for a in range(s):
         else:
             linkElem = new_driver.find_element_by_css_selector("*[class*='phoneShowNumberButton']")
             type(linkElem)
-            new_driver.implicitly_wait(10)
-            linkElem.click()
-            phone_num = linkElem.text
-            print linkElem.text
+            new_driver.implicitly_wait(2)
+            # linkElem.click()
+
+            while True:
+                new_driver.implicitly_wait(2)
+                try:
+                    # len(linkElem.text) > 0
+                    linkElem.click()
+                    phone_num = linkElem.text
+                    if re.search('XX', phone_num):
+                        continue
+                except (StaleElementReferenceException, TimeoutException):
+                    continue
+                else:
+                    print linkElem.text
+                    break
 
         # if len(new_driver.find_elements_by_css_selector("*[class*='phoneShowNumberButton']")) > 0:
         #     linkElem = new_driver.find_element_by_css_selector("*[class*='phoneShowNumberButton']")
