@@ -129,6 +129,8 @@ for a in range(s):
 
     b = 0
 
+    new_driver.switch_to.window(new_driver_handle)
+
     for i in list_links:
 
         # Open a new tab and open individual kijiji ad
