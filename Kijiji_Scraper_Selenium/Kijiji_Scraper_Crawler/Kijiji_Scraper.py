@@ -41,8 +41,8 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-new_driver = webdriver.PhantomJS()
-driver = webdriver.PhantomJS()
+new_driver = webdriver.Firefox()
+driver = webdriver.Firefox()
 # new_driver = webdriver.PhantomJS(
 #     executable_path='/Users/williamjohnson/PycharmProjects/Kijiji_Scraper_Selenium/Kijiji_Scraper_Selenium/Kijiji_Scraper_Crawler/phantomjs')
 # new_driver.set_window_size(1920, 1080)
@@ -65,9 +65,9 @@ try:
     element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "LoginEmailOrNickname")))
 finally:
     emailElem = driver.find_element_by_id('LoginEmailOrNickname')
-    emailElem.send_keys('williamleonardjohnson@gmail.com')
+    emailElem.send_keys('l_gaudet133@hotmail.com')
     passwordElem = driver.find_element_by_id('login-password')
-    passwordElem.send_keys('WJ1029vc1')
+    passwordElem.send_keys('123456789')
     passwordElem.submit()
 
 # emailElem =driver.find_element_by_id('LoginEmailOrNickname')
@@ -77,18 +77,16 @@ finally:
 # passwordElem.submit()
 # driver.implicitly_wait(10)
 
-try:
-    element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "houses for sale"))
-                                              )
-finally:
-    linkElem = driver.find_element_by_partial_link_text("houses for sale")
-    type(linkElem)
-    linkElem.click()  # follows the "Read It Online" link
-
-# linkElem =driver.find_element_by_partial_link_text("houses for sale")
-# type(linkElem)
-# linkElem.click()
-# driver.implicitly_wait(3)
+while True:
+    try:
+        element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "houses for sale")))
+    except (StaleElementReferenceException, TimeoutException, NoSuchElementException):
+        continue
+    else:
+        linkElem = driver.find_element_by_partial_link_text("houses for sale")
+        type(linkElem)
+        linkElem.click()
+        break
 
 try:
     element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Propri")))
@@ -157,9 +155,9 @@ for a in range(s):
                     EC.presence_of_element_located((By.ID, "LoginEmailOrNickname")))
             finally:
                 emailElem = new_driver.find_element_by_id('LoginEmailOrNickname')
-                emailElem.send_keys('williamleonardjohnson@gmail.com')
+                emailElem.send_keys('l_gaudet133@hotmail.com')
                 passwordElem = new_driver.find_element_by_id('login-password')
-                passwordElem.send_keys('WJ1029vc1')
+                passwordElem.send_keys('123456789')
                 passwordElem.submit()
 
         new_driver.save_screenshot('out1.png')
