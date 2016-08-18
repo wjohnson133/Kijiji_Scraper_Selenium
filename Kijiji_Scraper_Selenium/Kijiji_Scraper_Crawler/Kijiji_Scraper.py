@@ -70,13 +70,6 @@ finally:
     passwordElem.send_keys('123456789')
     passwordElem.submit()
 
-# emailElem =driver.find_element_by_id('LoginEmailOrNickname')
-# emailElem.send_keys('williamleonardjohnson@gmail.com')
-# passwordElem =driver.find_element_by_id('login-password')
-# passwordElem.send_keys('WJ1029vc1')
-# passwordElem.submit()
-# driver.implicitly_wait(10)
-
 while True:
     try:
         element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "houses for sale")))
@@ -208,6 +201,7 @@ for a in range(s):
                 (By.CSS_SELECTOR, "[class='ad-attributes']"))
             )
         except (NoSuchElementException, TimeoutException):
+            b+=1
             continue
         else:
             info = new_driver.find_element_by_css_selector("[class='ad-attributes']")
